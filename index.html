@@ -124,38 +124,45 @@
             { time: "Evening", task: "Prepare sprayer for tomorrow's micronutrient application.", completed: false, icon: "🌿" },
         ];
         
-        // --- Embedded AI Engine (Simulated for Reliability) ---
-        // This function simulates the AI responses to make the app work 100% of the time.
-        async function callEmbeddedAI(payload) {
-            console.log("Calling Embedded AI Engine with payload:", payload);
-            // The prompt is the first text part of the payload
-            const prompt = payload.contents[0].parts.find(part => part.text)?.text.toLowerCase() || "";
-
-            // Simulate network delay for realism
-            await new Promise(res => setTimeout(res, 1200));
-
-            // --- AI Logic for Image Diagnosis ---
-            if (payload.contents[0].parts.some(part => part.inlineData)) {
-                return `**Disease:** Powdery Mildew\n**Severity:** Medium\n\n**Description:** A white, dusty coating is visible on the leaves, stems, and flowers. It is a common fungal disease that thrives in moderate temperatures and shady conditions.\n\n**Remedy:**\n1. **Pruning:** Remove and destroy infected plant parts immediately.\n2. **Spray:** Mix 1 tablespoon of baking soda and half a teaspoon of liquid soap in 1 gallon of water. Spray the plant thoroughly every 7-10 days.\n3. **Sunlight:** Ensure the plant gets adequate sunlight and air circulation.`;
+        // --- Live Gemini AI Configuration ---
+        // STEP 1: Get your free API key from Google AI Studio (https://aistudio.google.com/app/apikey)
+        // STEP 2: Paste your key between the quotation marks below.
+        const API_KEY = "AIzaSyARb6wzpVpXBEjBCdX5vYyKcWksPZxZVOw";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+        
+        async function callGeminiAPI(payload, retries = 3, delay = 1000) {
+            if (API_KEY === "PASTE_YOUR_GOOGLE_AI_API_KEY_HERE") {
+                return "**Error:** API Key is missing. Please follow the instructions in the code to add your Google AI API key.";
             }
-
-            // --- AI Logic for Market Prediction ---
-            if (prompt.includes('market analyst')) {
-                return `Based on current trends, the wheat price for the upcoming harvest season (March/April 2026) is expected to be **stable with a slight upward trend**. A good monsoon is predicted, which suggests a healthy supply. However, increased government MSP (Minimum Support Price) and strong global demand for Indian wheat are likely to keep prices firm, potentially pushing them slightly higher than the current rate. Farmers are advised to monitor the market closely closer to the harvest date.`;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const result = await response.json();
+                    if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        if(result.candidates?.[0]?.finishReason === 'SAFETY') {
+                             return "Response blocked due to safety settings. Please rephrase your query.";
+                        }
+                        throw new Error("Invalid API response structure");
+                    }
+                } catch (error) {
+                    console.error(`API call attempt ${i + 1} failed:`, error);
+                    if (i < retries - 1) {
+                        await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+                    } else {
+                        return "Sorry, I'm having trouble connecting to the AI service. Please check your connection and API key, then try again.";
+                    }
+                }
             }
-
-            // --- AI Logic for Chatbot ---
-            if (prompt.includes('pm-kisan')) {
-                 return "PM-KISAN is a government scheme that provides income support of ₹6,000 per year to all eligible farmer families. The amount is paid in three installments of ₹2,000 each.";
-            }
-            if (prompt.includes('organic fertilizer')) {
-                return "You can make great organic fertilizer at home using cow dung, kitchen waste (like vegetable peels), and dry leaves. This is called 'composting'. It's a natural way to enrich your soil without chemicals.";
-            }
-
-            // --- Default AI Chatbot Response ---
-            return "I am a helpful AI assistant for Indian farmers. I can provide information on crop management, government schemes, and market prices. How can I assist you further?";
         }
-
 
         // --- Page Templates ---
 
@@ -303,13 +310,13 @@
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: "You are an expert agronomist for Indian crops..." },
+                            { text: "You are an expert agronomist for Indian crops. Analyze this image of a plant leaf. Identify any disease, pest, or nutrient deficiency. Provide the name, severity (Low, Medium, High), a brief description, and a simple, step-by-step remedy for an Indian farmer. If the image is healthy or not a plant, say so. Format the response with clear headings using markdown." },
                             { inlineData: { mimeType: "image/jpeg", data: base64Data } }
                         ]
                     }]
                 };
                 
-                const responseText = await callEmbeddedAI(payload);
+                const responseText = await callGeminiAPI(payload);
                 // Simple markdown to HTML conversion
                 let htmlResponse = responseText
                     .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>') // Bold
@@ -339,9 +346,12 @@
 
                 const payload = {
                     contents: [{ parts: [{ text: query }] }],
+                    systemInstruction: {
+                        parts: [{ text: "You are 'Krishi-Gyaan GPT', a helpful AI assistant for Indian farmers. Provide clear, concise, and practical answers to agricultural questions in simple language. You can answer in Hindi or Hinglish if the user asks." }]
+                    }
                 };
                 
-                const responseText = await callEmbeddedAI(payload);
+                const responseText = await callGeminiAPI(payload);
                 document.getElementById('ai-thinking').remove();
                 
                 // Add AI response
@@ -357,16 +367,16 @@
         
         async function fetchMarketPrediction() {
             const predictionDiv = document.getElementById('market-prediction');
-            const prompt = `act as an agricultural market analyst...`;
+            const prompt = `It is currently September 9, 2025. Given the current price of Wheat in Jaipur, India is ₹${MOCK_MARKET.todayPrice}/quintal, act as an agricultural market analyst. Predict the price trend for the next harvest season (March/April 2026). Will it be higher, lower, or stable? Provide a short, one-paragraph explanation based on typical factors like monsoon performance, government MSP, and global demand.`;
 
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
-            const responseText = await callEmbeddedAI(payload);
+            const responseText = await callGeminiAPI(payload);
             
             predictionDiv.innerHTML = responseText.replace(/\n/g, '<br>');
         }
         
         function updateTime() {
-            const now = new Date(); // Corrected the bug here
+            const now = new Date();
             const options = { weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: true };
             timeDisplay.textContent = new Intl.DateTimeFormat('en-IN', options).format(now);
         }
