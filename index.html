@@ -124,7 +124,7 @@
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
         
         async function callGeminiAPI(payload) {
-             if (API_KEY === "AIzaSyARb6wzpVpXBEjBCdX5vYyKcWksPZxZVOw") {
+             if (API_KEY === "") {
                 return `**Error:** API Key is missing. Please get a free key from Google AI Studio and paste it into the code.`;
             }
             try {
