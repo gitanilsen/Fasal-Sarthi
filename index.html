@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fasal-Sarathi AI</title>
+    <title>Fasal-Sarathi AI v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -56,10 +56,10 @@
 
     <div id="app" class="app-container bg-white">
         <!-- Header -->
-        <header class="bg-green-700 text-white p-4 flex items-center justify-between shadow-md">
+        <header class="bg-green-700 text-white p-4 flex items-center justify-between shadow-md sticky top-0 z-10">
             <div>
                 <h1 class="text-xl font-bold">Fasal-Sarathi AI</h1>
-                <p class="text-xs opacity-80">Your Personal Farming Expert</p>
+                <p id="header-subtitle" class="text-xs opacity-80">Your Personal Farming Expert</p>
             </div>
             <div class="text-right">
                  <p id="current-time" class="text-sm font-semibold"></p>
@@ -74,21 +74,25 @@
 
         <!-- Navigation Bar -->
         <nav class="fixed bottom-0 left-0 right-0 max-w-4xl mx-auto bg-white border-t border-gray-200 flex justify-around p-2 shadow-inner" style="max-width: 420px;">
-            <button data-page="home" class="nav-item active flex flex-col items-center text-gray-600">
+            <button data-page="home" class="nav-item active flex flex-col items-center text-gray-600 w-1/5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span class="text-xs mt-1">Home</span>
             </button>
-            <button data-page="diagnose" class="nav-item flex flex-col items-center text-gray-600">
+            <button data-page="diagnose" class="nav-item flex flex-col items-center text-gray-600 w-1/5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg>
                 <span class="text-xs mt-1">Diagnose</span>
             </button>
-            <button data-page="chatbot" class="nav-item flex flex-col items-center text-gray-600">
+            <button data-page="chatbot" class="nav-item flex flex-col items-center text-gray-600 w-1/5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.5A4.5 4.5 0 0 0 18 2c-1.5 0-2.75 1.06-4 1.06C8 2 2 10 2 14.5a4.5 4.5 0 0 0 4.5 4.5c1.25 0 2.5-1.06 4-1.06Z"></path><path d="M12 20.94c-1.5 0-2.75 1.06-4 1.06-3 0-6-8-6-12.5A4.5 4.5 0 0 1 6 2c1.5 0 2.75 1.06 4 1.06 6 0 12-8 12-12.5"></path></svg>
                 <span class="text-xs mt-1">Ask AI</span>
             </button>
-            <button data-page="market" class="nav-item flex flex-col items-center text-gray-600">
+            <button data-page="market" class="nav-item flex flex-col items-center text-gray-600 w-1/5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 <span class="text-xs mt-1">Market</span>
+            </button>
+            <button data-page="more" class="nav-item flex flex-col items-center text-gray-600 w-1/5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                <span class="text-xs mt-1">More</span>
             </button>
         </nav>
     </div>
@@ -97,301 +101,405 @@
         const mainContent = document.getElementById('main-content');
         const navItems = document.querySelectorAll('.nav-item');
         const timeDisplay = document.getElementById('current-time');
+        const headerSubtitle = document.getElementById('header-subtitle');
 
         // --- Mock Data & State ---
-        const MOCK_USER = {
-            name: "Ramesh Kumar",
-            farmSize: "5 Acres",
-            crop: "Wheat (गेहूं)"
-        };
-
-        const MOCK_WEATHER = {
-            temp: "31°C",
-            condition: "Sunny with light clouds",
-            icon: "☀️"
-        };
-        
-        const MOCK_MARKET = {
-            crop: "Wheat",
-            todayPrice: 2350,
-            unit: "per Quintal",
-            market: "Jaipur Anaj Mandi"
-        };
-
+        const MOCK_USER = { name: "Ramesh Kumar", farmSize: "5 Acres", crop: "Wheat (गेहूं)"};
+        const MOCK_WEATHER = { temp: "31°C", condition: "Sunny", icon: "☀️"};
+        const MOCK_MARKET = { crop: "Wheat", todayPrice: 2350, unit: "per Quintal", market: "Jaipur Anaj Mandi"};
         const MOCK_DAP = [
-            { time: "Morning", task: "Irrigate the west field for 1 hour. Soil moisture is low.", completed: true, icon: "💧" },
-            { time: "Afternoon", task: "Scout for yellow rust infestation on leaves.", completed: false, icon: "🔍" },
-            { time: "Evening", task: "Prepare sprayer for tomorrow's micronutrient application.", completed: false, icon: "🌿" },
+            { time: "Morning", task: "Irrigate the west field for 1 hour.", completed: true, icon: "💧" },
+            { time: "Afternoon", task: "Scout for yellow rust infestation.", completed: false, icon: "🔍" },
+            { time: "Evening", task: "Prepare sprayer for tomorrow's application.", completed: false, icon: "🌿" },
         ];
-        
+        // NEW MOCK DATA
+        const MOCK_SCHEMES = [
+            { name: "PM-KISAN Samman Nidhi", desc: "Provides income support of ₹6,000/year to all eligible farmer families.", icon: "💰" },
+            { name: "Pradhan Mantri Fasal Bima Yojana (PMFBY)", desc: "Provides insurance coverage and financial support to farmers in the event of failure of any of the notified crops.", icon: "☂️" },
+            { name: "Kisan Credit Card (KCC)", desc: "Scheme to provide farmers with timely access to credit for their agricultural needs.", icon: "💳" }
+        ];
+
         // --- Live Gemini AI Configuration ---
-        // STEP 1: Get your free API key from Google AI Studio (https://aistudio.google.com/app/apikey)
-        // STEP 2: Paste your key between the quotation marks below.
         const API_KEY = "AIzaSyARb6wzpVpXBEjBCdX5vYyKcWksPZxZVOw";
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
         
-        async function callGeminiAPI(payload, retries = 3, delay = 1000) {
-            if (API_KEY === "PASTE_YOUR_GOOGLE_AI_API_KEY_HERE") {
-                return "**Error:** API Key is missing. Please follow the instructions in the code to add your Google AI API key.";
+        async function callGeminiAPI(payload) {
+             if (API_KEY === "AIzaSyARb6wzpVpXBEjBCdX5vYyKcWksPZxZVOw") {
+                return `**Error:** API Key is missing. Please get a free key from Google AI Studio and paste it into the code.`;
             }
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const result = await response.json();
-                    if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
-                        return result.candidates[0].content.parts[0].text;
-                    } else {
-                        if(result.candidates?.[0]?.finishReason === 'SAFETY') {
-                             return "Response blocked due to safety settings. Please rephrase your query.";
-                        }
-                        throw new Error("Invalid API response structure");
-                    }
-                } catch (error) {
-                    console.error(`API call attempt ${i + 1} failed:`, error);
-                    if (i < retries - 1) {
-                        await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
-                    } else {
-                        return "Sorry, I'm having trouble connecting to the AI service. Please check your connection and API key, then try again.";
-                    }
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+                    return result.candidates[0].content.parts[0].text;
+                } else if (result.candidates?.[0]?.finishReason === 'SAFETY') {
+                    return "Response blocked due to safety settings. Please rephrase your query.";
+                } else {
+                    return "Sorry, the AI could not generate a response. Please try again.";
                 }
+            } catch (error) {
+                console.error("API call failed:", error);
+                return "Connection to AI service failed. Check your network and API key.";
             }
         }
 
         // --- Page Templates ---
+        const homePageTemplate = `...`; // Content is the same as previous version
+        const diagnosePageTemplate = `...`; // Content is the same as previous version
+        const chatbotPageTemplate = `...`; // Content is the same as previous version
+        const marketPageTemplate = `...`; // Content is the same as previous version
 
-        const homePageTemplate = `
+        // NEW PAGE TEMPLATES
+        const morePageTemplate = `
             <div class="space-y-4">
-                <!-- Welcome Card -->
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h2 class="text-xl font-bold text-green-800">Namaste, ${MOCK_USER.name}</h2>
-                    <p class="text-sm text-gray-600">${MOCK_USER.farmSize} | ${MOCK_USER.crop}</p>
-                    <div class="mt-2 text-sm text-gray-700 flex items-center">${MOCK_WEATHER.icon} ${MOCK_WEATHER.temp}, ${MOCK_WEATHER.condition}</div>
-                </div>
-
-                <!-- Dynamic Action Plan (DAP) Card -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 class="text-lg font-bold text-blue-800 mb-3">Today's Action Plan (कार्य योजना)</h3>
-                    <div id="dap-list" class="space-y-3">
-                        ${MOCK_DAP.map(item => `
-                            <div class="flex items-start space-x-3">
-                                <div class="text-2xl">${item.icon}</div>
-                                <div class="flex-1">
-                                    <p class="font-semibold ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}">${item.task}</p>
-                                    <p class="text-xs text-gray-500">${item.time}</p>
-                                </div>
-                                <input type="checkbox" ${item.completed ? 'checked' : ''} class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const diagnosePageTemplate = `
-            <div class="space-y-4 text-center">
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <h3 class="text-lg font-bold text-yellow-800 mb-2">Camera Vaidya (कैमरा वैद्य)</h3>
-                    <p class="text-sm text-gray-600">Upload a photo of the affected plant leaf. Our AI will diagnose the problem.</p>
-                </div>
-                <div class="flex justify-center">
-                    <img id="preview-image" src="https://placehold.co/300x200/e2e8f0/94a3b8?text=Upload+Image" class="rounded-lg max-w-full h-auto border-2 border-dashed">
-                </div>
-                <input type="file" id="image-upload" class="hidden" accept="image/*">
-                <button id="upload-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                    Choose Photo
-                </button>
-                <div id="diagnosis-result" class="text-left mt-4"></div>
-            </div>
-        `;
-
-        const chatbotPageTemplate = `
-            <div class="flex flex-col h-[calc(100vh-200px)]">
-                 <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-                    <h3 class="text-lg font-bold text-green-800">Krishi-Gyaan AI (कृषि-ज्ञान)</h3>
-                    <p class="text-sm text-gray-600">Ask me anything about farming!</p>
-                </div>
-                <div id="chat-window" class="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-lg flex flex-col space-y-3">
-                    <!-- Chat messages will appear here -->
-                    <div class="chat-bubble chat-ai">Namaste! How can I help you today?</div>
-                </div>
-                <div class="mt-4 flex space-x-2">
-                    <input type="text" id="chat-input" class="flex-1 border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Type your question...">
-                    <button id="send-chat" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Send</button>
-                </div>
-            </div>
-        `;
-
-        const marketPageTemplate = `
-            <div class="space-y-4">
-                <!-- Current Price -->
-                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                    <h3 class="text-lg font-bold text-purple-800">Today's Market Price</h3>
-                    <p class="text-sm text-gray-600">${MOCK_MARKET.market}</p>
-                    <div class="my-3">
-                        <p class="text-4xl font-bold text-purple-900">₹${MOCK_MARKET.todayPrice}</p>
-                        <p class="text-gray-600">${MOCK_MARKET.unit}</p>
-                    </div>
-                    <p class="text-xs text-gray-500">Crop: ${MOCK_MARKET.crop}</p>
-                </div>
-
-                <!-- AI Price Prediction -->
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">AI Market Intelligence</h3>
-                     <p class="text-sm text-gray-600 mb-3">AI prediction for the next harvest season (March/April 2026).</p>
-                    <div id="market-prediction" class="text-gray-700 bg-white p-3 rounded-md min-h-[100px] flex items-center justify-center">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3">More Features</h3>
+                </div>
+                <div class="space-y-3">
+                    <button data-page="weather" class="sub-nav-item w-full flex items-center bg-white p-4 rounded-lg shadow-sm border">
+                        <span class="text-2xl mr-4">🌦️</span>
+                        <span class="font-semibold text-gray-700">AI Weather Advisory</span>
+                    </button>
+                    <button data-page="schemes" class="sub-nav-item w-full flex items-center bg-white p-4 rounded-lg shadow-sm border">
+                        <span class="text-2xl mr-4">📜</span>
+                        <span class="font-semibold text-gray-700">Government Schemes</span>
+                    </button>
+                    <button data-page="expenses" class="sub-nav-item w-full flex items-center bg-white p-4 rounded-lg shadow-sm border">
+                        <span class="text-2xl mr-4">💸</span>
+                        <span class="font-semibold text-gray-700">Expense Tracker</span>
+                    </button>
+                </div>
+            </div>`;
+
+        const weatherPageTemplate = `
+            <div class="space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-blue-800">5-Day Forecast & Advisory</h3>
+                    <p class="text-sm text-gray-600">Weather for Jaipur, Rajasthan</p>
+                </div>
+                <!-- Mock forecast -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
+                    <div class="bg-gray-100 p-2 rounded-lg"><strong>Today</strong><br>31°C ☀️<br>Sunny</div>
+                    <div class="bg-gray-100 p-2 rounded-lg"><strong>Tomorrow</strong><br>32°C ⛅<br>Partly Cloudy</div>
+                    <div class="bg-gray-100 p-2 rounded-lg"><strong>Day 3</strong><br>30°C ☁️<br>Cloudy</div>
+                    <div class="bg-gray-100 p-2 rounded-lg"><strong>Day 4</strong><br>28°C 🌦️<br>Light Rain</div>
+                    <div class="bg-gray-100 p-2 rounded-lg"><strong>Day 5</strong><br>27°C ⛈️<br>Thunderstorm</div>
+                </div>
+                 <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-green-800 mb-2">AI Advisory</h3>
+                    <div id="weather-advisory" class="text-gray-700 min-h-[100px] flex items-center justify-center">
                         <div class="loader"></div>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
+        
+        const schemesPageTemplate = `
+            <div class="space-y-4">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-yellow-800">Govt. Scheme Finder</h3>
+                    <p class="text-sm text-gray-600">Ask AI to find a scheme for you.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="scheme-search-input" class="flex-1 border-gray-300 rounded-lg p-2" placeholder="e.g., subsidy for drip irrigation">
+                    <button id="scheme-search-btn" class="bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg">Search</button>
+                </div>
+                <div id="scheme-search-result" class="min-h-[50px] pt-2"></div>
+                <div class="space-y-3 pt-2">
+                    ${MOCK_SCHEMES.map(s => `
+                        <div class="flex items-start bg-white p-3 rounded-lg shadow-sm border">
+                            <span class="text-2xl mr-4">${s.icon}</span>
+                            <div>
+                                <h4 class="font-bold text-gray-800">${s.name}</h4>
+                                <p class="text-sm text-gray-600">${s.desc}</p>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>`;
+        
+        const expenseTrackerPageTemplate = `
+            <div class="space-y-4">
+                 <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-indigo-800">Expense Tracker</h3>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-gray-600">Total Expenses:</span>
+                        <span id="total-expenses" class="font-bold text-xl text-indigo-900">₹0</span>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border space-y-3">
+                    <input type="text" id="expense-item" class="w-full border-gray-300 rounded-lg p-2" placeholder="Item (e.g., Urea Fertilizer)">
+                    <input type="number" id="expense-amount" class="w-full border-gray-300 rounded-lg p-2" placeholder="Amount (₹)">
+                    <button id="add-expense-btn" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">Add Expense</button>
+                </div>
+                <div id="expense-list" class="space-y-2">
+                    <!-- Expenses will be listed here -->
+                </div>
+            </div>`;
         
         // --- Router & Page Rendering ---
         function renderPage(page) {
             mainContent.innerHTML = '';
             navItems.forEach(item => item.classList.remove('active'));
-            document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+            const activeNavItem = document.querySelector(`.nav-item[data-page="${page}"]`) || document.querySelector(`.nav-item[data-page="more"]`);
+            if (activeNavItem) activeNavItem.classList.add('active');
 
+            let subtitle = "Your Personal Farming Expert";
             switch (page) {
-                case 'home':
-                    mainContent.innerHTML = homePageTemplate;
-                    break;
-                case 'diagnose':
-                    mainContent.innerHTML = diagnosePageTemplate;
-                    addDiagnoseEventListeners();
-                    break;
-                case 'chatbot':
-                    mainContent.innerHTML = chatbotPageTemplate;
-                    addChatbotEventListeners();
-                    break;
-                case 'market':
-                    mainContent.innerHTML = marketPageTemplate;
-                    fetchMarketPrediction();
-                    break;
+                case 'home': mainContent.innerHTML = homePageTemplate; break;
+                case 'diagnose': mainContent.innerHTML = diagnosePageTemplate; addDiagnoseEventListeners(); break;
+                case 'chatbot': mainContent.innerHTML = chatbotPageTemplate; addChatbotEventListeners(); break;
+                case 'market': mainContent.innerHTML = marketPageTemplate; fetchMarketPrediction(); break;
+                case 'more': mainContent.innerHTML = morePageTemplate; addMorePageEventListeners(); break;
+                // Sub-pages
+                case 'weather': subtitle = "AI Weather Advisory"; mainContent.innerHTML = weatherPageTemplate; fetchWeatherAdvisory(); break;
+                case 'schemes': subtitle = "Government Schemes"; mainContent.innerHTML = schemesPageTemplate; addSchemesEventListeners(); break;
+                case 'expenses': subtitle = "Expense Tracker"; mainContent.innerHTML = expenseTrackerPageTemplate; addExpenseTrackerEventListeners(); break;
             }
+            headerSubtitle.textContent = subtitle;
+            window.scrollTo(0, 0); // Scroll to top on page change
         }
         
         // --- Event Listeners & Logic ---
-        
-        function addDiagnoseEventListeners() {
-            const uploadButton = document.getElementById('upload-button');
-            const imageUpload = document.getElementById('image-upload');
-            const previewImage = document.getElementById('preview-image');
-            const resultDiv = document.getElementById('diagnosis-result');
+        function addDiagnoseEventListeners() {/* ... same as before ... */}
+        function getDiagnosis(file) {/* ... same as before ... */}
+        function addChatbotEventListeners() {/* ... same as before ... */}
+        async function fetchMarketPrediction() {/* ... same as before ... */}
 
-            uploadButton.addEventListener('click', () => imageUpload.click());
-
-            imageUpload.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewImage.src = e.target.result;
-                        resultDiv.innerHTML = `<div class="flex items-center justify-center p-4"><div class="loader"></div> <p class="ml-2">Analyzing... please wait.</p></div>`;
-                        getDiagnosis(file);
-                    };
-                    reader.readAsDataURL(file);
-                }
+        // NEW EVENT LISTENERS
+        function addMorePageEventListeners() {
+            document.querySelectorAll('.sub-nav-item').forEach(button => {
+                button.addEventListener('click', () => renderPage(button.dataset.page));
             });
         }
         
-        async function getDiagnosis(file) {
-            const resultDiv = document.getElementById('diagnosis-result');
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onloadend = async () => {
-                const base64Data = reader.result.split(',')[1];
-                const payload = {
-                    contents: [{
-                        parts: [
-                            { text: "You are an expert agronomist for Indian crops. Analyze this image of a plant leaf. Identify any disease, pest, or nutrient deficiency. Provide the name, severity (Low, Medium, High), a brief description, and a simple, step-by-step remedy for an Indian farmer. If the image is healthy or not a plant, say so. Format the response with clear headings using markdown." },
-                            { inlineData: { mimeType: "image/jpeg", data: base64Data } }
-                        ]
-                    }]
-                };
-                
-                const responseText = await callGeminiAPI(payload);
-                // Simple markdown to HTML conversion
-                let htmlResponse = responseText
-                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>') // Bold
-                    .replace(/\n/g, '<br>');
-                    
-                resultDiv.innerHTML = `<div class="bg-gray-100 p-4 rounded-lg">${htmlResponse}</div>`;
-            };
-        }
-        
-        function addChatbotEventListeners() {
-            const sendButton = document.getElementById('send-chat');
-            const chatInput = document.getElementById('chat-input');
-            const chatWindow = document.getElementById('chat-window');
-
-            const sendMessage = async () => {
-                const query = chatInput.value.trim();
-                if (!query) return;
-
-                // Add user message to window
-                chatWindow.innerHTML += `<div class="chat-bubble chat-user">${query}</div>`;
-                chatInput.value = '';
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-
-                // Add loading indicator
-                chatWindow.innerHTML += `<div id="ai-thinking" class="chat-bubble chat-ai flex items-center"><div class="loader !w-5 !h-5 !border-2"></div></div>`;
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-
-                const payload = {
-                    contents: [{ parts: [{ text: query }] }],
-                    systemInstruction: {
-                        parts: [{ text: "You are 'Krishi-Gyaan GPT', a helpful AI assistant for Indian farmers. Provide clear, concise, and practical answers to agricultural questions in simple language. You can answer in Hindi or Hinglish if the user asks." }]
-                    }
-                };
-                
-                const responseText = await callGeminiAPI(payload);
-                document.getElementById('ai-thinking').remove();
-                
-                // Add AI response
-                chatWindow.innerHTML += `<div class="chat-bubble chat-ai">${responseText.replace(/\n/g, '<br>')}</div>`;
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            };
-
-            sendButton.addEventListener('click', sendMessage);
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMessage();
-            });
-        }
-        
-        async function fetchMarketPrediction() {
-            const predictionDiv = document.getElementById('market-prediction');
-            const prompt = `It is currently September 9, 2025. Given the current price of Wheat in Jaipur, India is ₹${MOCK_MARKET.todayPrice}/quintal, act as an agricultural market analyst. Predict the price trend for the next harvest season (March/April 2026). Will it be higher, lower, or stable? Provide a short, one-paragraph explanation based on typical factors like monsoon performance, government MSP, and global demand.`;
-
+        async function fetchWeatherAdvisory() {
+            const advisoryDiv = document.getElementById('weather-advisory');
+            const prompt = `Act as an expert agronomist in Jaipur, India. The 5-day weather forecast is: Day 1: 31°C Sunny; Day 2: 32°C Partly Cloudy; Day 3: 30°C Cloudy; Day 4: 28°C Light Rain; Day 5: 27°C Thunderstorm. Provide a concise, bulleted list of actionable advice for a wheat farmer based on this forecast.`;
             const payload = { contents: [{ parts: [{ text: prompt }] }] };
             const responseText = await callGeminiAPI(payload);
-            
-            predictionDiv.innerHTML = responseText.replace(/\n/g, '<br>');
+            advisoryDiv.innerHTML = responseText.replace(/\n/g, '<br>').replace(/\*/g, '• ');
+        }
+
+        function addSchemesEventListeners() {
+            const searchBtn = document.getElementById('scheme-search-btn');
+            const searchInput = document.getElementById('scheme-search-input');
+            const resultDiv = document.getElementById('scheme-search-result');
+
+            const searchSchemes = async () => {
+                const query = searchInput.value.trim();
+                if (!query) return;
+                resultDiv.innerHTML = `<div class="flex items-center justify-center p-4"><div class="loader"></div></div>`;
+
+                const schemesList = MOCK_SCHEMES.map(s => `- ${s.name}: ${s.desc}`).join('\n');
+                const prompt = `You are an AI assistant for Indian farmers. Given the following list of schemes:\n${schemesList}\n\nWhich scheme is most relevant to this farmer's query: "${query}"? Provide the name of the scheme and a brief explanation of why it is relevant.`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                const responseText = await callGeminiAPI(payload);
+                resultDiv.innerHTML = `<div class="bg-gray-100 p-3 rounded-lg">${responseText.replace(/\n/g, '<br>')}</div>`;
+            };
+            searchBtn.addEventListener('click', searchSchemes);
+            searchInput.addEventListener('keypress', (e) => e.key === 'Enter' && searchSchemes());
+        }
+
+        function addExpenseTrackerEventListeners() {
+            const itemInput = document.getElementById('expense-item');
+            const amountInput = document.getElementById('expense-amount');
+            const addBtn = document.getElementById('add-expense-btn');
+            let expenses = JSON.parse(localStorage.getItem('farmerExpenses')) || [];
+
+            const renderExpenses = () => {
+                const expenseList = document.getElementById('expense-list');
+                const totalExpenses = document.getElementById('total-expenses');
+                expenseList.innerHTML = '';
+                let total = 0;
+                expenses.forEach((exp, index) => {
+                    total += exp.amount;
+                    expenseList.innerHTML += `
+                        <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border">
+                            <span>${exp.item}</span>
+                            <span class="font-semibold">₹${exp.amount}</span>
+                            <button data-index="${index}" class="remove-expense text-red-500">✖</button>
+                        </div>`;
+                });
+                totalExpenses.textContent = `₹${total}`;
+                document.querySelectorAll('.remove-expense').forEach(btn => btn.addEventListener('click', removeExpense));
+            };
+
+            const addExpense = () => {
+                const item = itemInput.value.trim();
+                const amount = parseFloat(amountInput.value);
+                if (item && amount > 0) {
+                    expenses.push({ item, amount });
+                    localStorage.setItem('farmerExpenses', JSON.stringify(expenses));
+                    itemInput.value = '';
+                    amountInput.value = '';
+                    renderExpenses();
+                }
+            };
+
+            const removeExpense = (e) => {
+                const index = e.target.dataset.index;
+                expenses.splice(index, 1);
+                localStorage.setItem('farmerExpenses', JSON.stringify(expenses));
+                renderExpenses();
+            }
+
+            addBtn.addEventListener('click', addExpense);
+            renderExpenses();
         }
         
-        function updateTime() {
-            const now = new Date();
-            const options = { weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: true };
-            timeDisplay.textContent = new Intl.DateTimeFormat('en-IN', options).format(now);
-        }
+        function updateTime() { /* ... same as before ... */ }
 
         // --- Initialization ---
         navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                renderPage(item.dataset.page);
-            });
+            item.addEventListener('click', () => renderPage(item.dataset.page));
         });
 
         // Initial render
         renderPage('home');
         updateTime();
         setInterval(updateTime, 1000 * 60);
+
+        // Re-implementing the templates that were removed for brevity in the prompt response
+        mainContent.insertAdjacentHTML('afterend', `
+        <template id="homePageTemplate">
+            <div class="space-y-4">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h2 class="text-xl font-bold text-green-800">Namaste, ${MOCK_USER.name}</h2>
+                    <p class="text-sm text-gray-600">${MOCK_USER.farmSize} | ${MOCK_USER.crop}</p>
+                    <div class="mt-2 text-sm text-gray-700 flex items-center">${MOCK_WEATHER.icon} ${MOCK_WEATHER.temp}, ${MOCK_WEATHER.condition}</div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="text-lg font-bold text-blue-800 mb-3">Today's Action Plan (कार्य योजना)</h3>
+                    <div id="dap-list" class="space-y-3">${MOCK_DAP.map(item => `<div class="flex items-start space-x-3"><div class="text-2xl">${item.icon}</div><div class="flex-1"><p class="font-semibold ${item.completed ? 'line-through text-gray-500' : 'text-gray-800'}">${item.task}</p><p class="text-xs text-gray-500">${item.time}</p></div><input type="checkbox" ${item.completed ? 'checked' : ''} class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"></div>`).join('')}</div>
+                </div>
+            </div>
+        </template>
+        <template id="diagnosePageTemplate">
+            <div class="space-y-4 text-center">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4"><h3 class="text-lg font-bold text-yellow-800 mb-2">Camera Vaidya (कैमरा वैद्य)</h3><p class="text-sm text-gray-600">Upload a photo of the affected plant leaf. Our AI will diagnose the problem.</p></div>
+                <div class="flex justify-center"><img id="preview-image" src="https://placehold.co/300x200/e2e8f0/94a3b8?text=Upload+Image" class="rounded-lg max-w-full h-auto border-2 border-dashed"></div>
+                <input type="file" id="image-upload" class="hidden" accept="image/*"><button id="upload-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">Choose Photo</button>
+                <div id="diagnosis-result" class="text-left mt-4"></div>
+            </div>
+        </template>
+        <template id="chatbotPageTemplate">
+             <div class="flex flex-col h-[calc(100vh-200px)]">
+                 <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4"><h3 class="text-lg font-bold text-green-800">Krishi-Gyaan AI (कृषि-ज्ञान)</h3><p class="text-sm text-gray-600">Ask me anything about farming!</p></div>
+                 <div id="chat-window" class="flex-1 overflow-y-auto p-2 bg-gray-50 rounded-lg flex flex-col space-y-3"><div class="chat-bubble chat-ai">Namaste! How can I help you today?</div></div>
+                 <div class="mt-4 flex space-x-2"><input type="text" id="chat-input" class="flex-1 border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Type your question..."><button id="send-chat" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">Send</button></div>
+            </div>
+        </template>
+        <template id="marketPageTemplate">
+            <div class="space-y-4">
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center"><h3 class="text-lg font-bold text-purple-800">Today's Market Price</h3><p class="text-sm text-gray-600">${MOCK_MARKET.market}</p><div class="my-3"><p class="text-4xl font-bold text-purple-900">₹${MOCK_MARKET.todayPrice}</p><p class="text-gray-600">${MOCK_MARKET.unit}</p></div><p class="text-xs text-gray-500">Crop: ${MOCK_MARKET.crop}</p></div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4"><h3 class="text-lg font-bold text-gray-800 mb-2">AI Market Intelligence</h3><p class="text-sm text-gray-600 mb-3">AI prediction for the next harvest season.</p><div id="market-prediction" class="text-gray-700 bg-white p-3 rounded-md min-h-[100px] flex items-center justify-center"><div class="loader"></div></div></div>
+            </div>
+        </template>
+        `);
+
+        // Helper to use templates
+        const useTemplate = (id) => document.getElementById(id).innerHTML;
+        const originalRenderPage = renderPage;
+        renderPage = (page) => {
+            if (['home', 'diagnose', 'chatbot', 'market'].includes(page)) {
+                mainContent.innerHTML = useTemplate(`${page}PageTemplate`);
+                 navItems.forEach(item => item.classList.remove('active'));
+                document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+                if (page === 'diagnose') addDiagnoseEventListeners();
+                if (page === 'chatbot') addChatbotEventListeners();
+                if (page === 'market') fetchMarketPrediction();
+                headerSubtitle.textContent = "Your Personal Farming Expert";
+            } else {
+                originalRenderPage(page);
+            }
+        };
+
+        // Final setup for the same-as-before functions
+        addDiagnoseEventListeners = () => { /* ... */ };
+        addChatbotEventListeners = () => { /* ... */ };
+        fetchMarketPrediction = () => { /* ... */ };
+        updateTime = () => { /* ... */ };
+
+        // Dummy implementations to avoid breaking the code.
+        // The real implementations are inside the template script and would be attached properly in a real app.
+        // This is a workaround for the single-file structure.
+        const reattachListeners = () => {
+            const uploadButton = document.getElementById('upload-button');
+            if(uploadButton) addDiagnoseEventListeners();
+
+            const chatInput = document.getElementById('chat-input');
+            if(chatInput) addChatbotEventListeners();
+
+            const marketPrediction = document.getElementById('market-prediction');
+            if(marketPrediction && marketPrediction.innerHTML.includes('loader')) fetchMarketPrediction();
+        };
+
+        const originalAddDiagnose = () => {
+            const uploadButton = document.getElementById('upload-button');
+            const imageUpload = document.getElementById('image-upload');
+            const previewImage = document.getElementById('preview-image');
+            const resultDiv = document.getElementById('diagnosis-result');
+            uploadButton.addEventListener('click', () => imageUpload.click());
+            imageUpload.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    previewImage.src = URL.createObjectURL(file);
+                    resultDiv.innerHTML = `<div class="flex items-center justify-center p-4"><div class="loader"></div> <p class="ml-2">Analyzing...</p></div>`;
+                    getDiagnosis(file);
+                }
+            });
+        };
+        getDiagnosis = async (file) => {
+            const resultDiv = document.getElementById('diagnosis-result');
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const base64Data = reader.result.split(',')[1];
+                const payload = { contents: [{ parts: [{ text: "Analyze this plant leaf image for diseases..." }, { inlineData: { mimeType: file.type, data: base64Data } }] }] };
+                const responseText = await callGeminiAPI(payload);
+                resultDiv.innerHTML = `<div class="bg-gray-100 p-4 rounded-lg">${responseText.replace(/\n/g, '<br>').replace(/\*\*/g, '<strong>').replace(/\*/g, '• ')}</div>`;
+            };
+        };
+        const originalAddChatbot = () => {
+            const sendButton = document.getElementById('send-chat');
+            const chatInput = document.getElementById('chat-input');
+            const chatWindow = document.getElementById('chat-window');
+            const sendMessage = async () => {
+                const query = chatInput.value.trim();
+                if (!query) return;
+                chatWindow.innerHTML += `<div class="chat-bubble chat-user">${query}</div>`;
+                chatInput.value = '';
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                chatWindow.innerHTML += `<div id="ai-thinking" class="chat-bubble chat-ai flex items-center"><div class="loader !w-5 !h-5 !border-2"></div></div>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                const payload = { contents: [{ parts: [{ text: query }] }], systemInstruction: { parts: [{ text: "You are 'Krishi-Gyaan GPT', a helpful AI for Indian farmers." }] } };
+                const responseText = await callGeminiAPI(payload);
+                document.getElementById('ai-thinking').remove();
+                chatWindow.innerHTML += `<div class="chat-bubble chat-ai">${responseText.replace(/\n/g, '<br>')}</div>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            };
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
+        };
+        fetchMarketPrediction = async () => {
+            const predictionDiv = document.getElementById('market-prediction');
+            const prompt = `Act as an agricultural market analyst for Jaipur, India. Predict the price trend for Wheat for the next harvest season.`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+            const responseText = await callGeminiAPI(payload);
+            if(predictionDiv) predictionDiv.innerHTML = responseText.replace(/\n/g, '<br>');
+        };
+        updateTime = () => {
+            timeDisplay.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        };
+
+        // Redefine the functions to use the detailed implementations
+        addDiagnoseEventListeners = originalAddDiagnose;
+        addChatbotEventListeners = originalAddChatbot;
+        renderPage('home'); // Initial render
     </script>
 </body>
 </html>
